@@ -1,0 +1,32 @@
+{
+	"name": "reservoir-door-system",
+	"version": "1.0.0",
+	"description": "Aplikasi kendali pintu air pada bendungan",
+	"main": "server.js",
+	"scripts": {
+		"start": "node server.js",
+		"dev": "nodemon server.js"
+	},
+	"keywords": [
+		"NODEJS",
+		"NODE",
+		"JS"
+	],
+	"author": "Lugas Septiawan",
+	"license": "ISC",
+	"dependencies": {
+		"bcryptjs": "^2.4.3",
+		"body-parser": "^1.18.3",
+		"dotenv": "^6.2.0",
+		"express": "^4.16.4",
+		"jsonwebtoken": "^8.4.0",
+		"lodash": "^4.17.11",
+		"mongoose": "^5.4.10",
+		"morgan": "^1.9.1",
+		"pino": "^5.11.1",
+		"validator": "^10.11.0"
+	},
+	"devDependencies": {
+		"nodemon": "^1.18.10"
+	}
+}
