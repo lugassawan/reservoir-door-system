@@ -6,7 +6,10 @@ const { server } = require("../server");
 const { User } = require("../api/models/User");
 const { Project } = require("../api/models/Project");
 const { Device } = require("../api/models/Device");
+const { Data } = require("../api/models/Data");
 const {
+	datas,
+	populateDatas,
 	devices,
 	populateDevices,
 	projects,
@@ -18,6 +21,99 @@ const {
 beforeEach(populateUsers);
 beforeEach(populateProjects);
 beforeEach(populateDevices);
+beforeEach(populateDatas);
+
+describe("POST /devices/:id", () => {
+	it("should store a new detail of device data & change device active status", done => {
+		const message = {
+			status: true
+		};
+		const active = true;
+
+		request(server)
+			.post(`/devices/${devices[0]._id.toHexString()}`)
+			.set("Api-Token", `${users[0].apiKey}:${devices[0].deviceCode}`)
+			.send({ message, active })
+			.expect(200)
+			.expect(res => {
+				expect(res.body.status).toBe("OK");
+			})
+			.end((err, res) => {
+				if (err) {
+					return done(err);
+				}
+
+				Device.findOne({ _id: devices[0]._id.toHexString() })
+					.then(device => {
+						expect(device.isActive).toBe(true);
+						done();
+					})
+					.catch(e => done(e));
+			});
+	});
+
+	it("should not store a new detail with invalid body data", done => {
+		request(server)
+			.post(`/devices/${devices[0]._id.toHexString()}`)
+			.set("Api-Token", `${users[0].apiKey}:${devices[0].deviceCode}`)
+			.send({})
+			.expect(400)
+			.end((err, res) => {
+				if (err) {
+					return done(err);
+				}
+
+				Data.find({ _device: devices[0]._id.toHexString() })
+					.then(datas => {
+						expect(datas.length).toBe(1);
+						done();
+					})
+					.catch(e => done(e));
+			});
+	});
+
+	it("should not return OK if not authorization", done => {
+		const message = {
+			status: true
+		};
+		const active = true;
+
+		request(server)
+			.post(`/devices/${devices[0]._id.toHexString()}`)
+			.send({ message, active })
+			.expect(404)
+			.end(done);
+	});
+
+	it("should return 401 if device not found", done => {
+		const hexId = new ObjectID().toHexString();
+		const message = {
+			status: true
+		};
+		const active = true;
+
+		request(server)
+			.post(`/devices/${hexId}`)
+			.set("Api-Token", `${users[0].apiKey}:${devices[0].deviceCode}`)
+			.send({ message, active })
+			.expect(401)
+			.end(done);
+	});
+
+	it("should return 404 for non object ids", done => {
+		const message = {
+			status: true
+		};
+		const active = true;
+
+		request(server)
+			.post(`/devices/123abc`)
+			.set("Api-Token", `${users[0].apiKey}:${devices[0].deviceCode}`)
+			.send({ message, active })
+			.expect(404)
+			.end(done);
+	});
+});
 
 describe("POST /projects/:projectId/devices", () => {
 	it("should create a new device", done => {

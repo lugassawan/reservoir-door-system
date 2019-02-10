@@ -7,6 +7,7 @@ const { app } = require("../../config/app");
 const { User } = require("../../api/models/User");
 const { Project } = require("../../api/models/Project");
 const { Device } = require("../../api/models/Device");
+const { Data } = require("../../api/models/Data");
 
 const userOneId = new ObjectID();
 const userTwoId = new ObjectID();
@@ -14,6 +15,8 @@ const projectOneId = new ObjectID();
 const projectTwoId = new ObjectID();
 const deviceOneId = new ObjectID();
 const deviceTwoId = new ObjectID();
+const dataOneId = new ObjectID();
+const dataTwoId = new ObjectID();
 
 const users = [
 	{
@@ -78,6 +81,23 @@ const devices = [
 	}
 ];
 
+const datas = [
+	{
+		_id: dataOneId,
+		detail: {
+			status: false
+		},
+		_device: deviceOneId
+	},
+	{
+		_id: dataTwoId,
+		detail: {
+			status: false
+		},
+		_device: deviceTwoId
+	}
+];
+
 const populateUsers = done => {
 	User.deleteMany({})
 		.then(() => {
@@ -108,7 +128,18 @@ const populateDevices = done => {
 		.catch(e => done(e));
 };
 
+const populateDatas = done => {
+	Data.deleteMany({})
+		.then(() => {
+			return Data.insertMany(datas);
+		})
+		.then(() => done())
+		.catch(e => done(e));
+};
+
 module.exports = {
+	datas,
+	populateDatas,
 	devices,
 	populateDevices,
 	projects,

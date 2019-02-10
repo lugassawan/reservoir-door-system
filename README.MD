@@ -20,6 +20,18 @@ The APIs are designed around RESTful principles, and return JSON payloads in res
 curl -X {HTTP Method} -H "Content-Type: application/json" -F "key1=value" -F key2=value" "url"
 ```
 
+Authentication User
+
+```
+res.header('x-auth', token);
+```
+
+Authorization Device
+
+```
+res.header('Api-Token', ApiKey:DeviceCode);
+```
+
 ## API LIST
 
 Users
@@ -50,6 +62,12 @@ Devices
 - GET /projects/:projectId/devices/:id         = Show a device doc
 - PATCH /projects/:projectId/devices/:id       = Update a device name
 - DELETE /projects/:projectId/devices/:id      = Delet a device
+```
+
+Data
+
+```
+- POST /devices/:id                            = Store data from device
 ```
 
 ## Test

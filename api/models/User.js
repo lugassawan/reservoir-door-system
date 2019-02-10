@@ -93,6 +93,12 @@ UserSchema.statics.findByToken = function(token) {
 	});
 };
 
+UserSchema.statics.findByApiKey = function(apiKey) {
+	const User = this;
+
+	return User.findOne({ apiKey });
+};
+
 UserSchema.statics.findByCredentials = function(email, password) {
 	var User = this;
 
