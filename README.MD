@@ -12,6 +12,14 @@ OR
 npm run dev               //Running through nodemon
 ```
 
+## Demo
+
+You can try the API from this url.
+
+```
+https://desolate-waters-44786.herokuapp.com/
+```
+
 ## Basic Usage
 
 The APIs are designed around RESTful principles, and return JSON payloads in response to HTTP requests. For example, accesing the API using curl.
