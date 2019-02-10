@@ -67,6 +67,7 @@ describe("POST /users", () => {
 					.then(user => {
 						expect(user).toBeTruthy();
 						expect(user.password).not.toBe(password);
+						expect(user.apiKey).toBeTruthy();
 						done();
 					})
 					.catch(e => done(e));

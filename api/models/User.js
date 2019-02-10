@@ -3,6 +3,7 @@ const validator = require("validator");
 const jwt = require("jsonwebtoken");
 const _ = require("lodash");
 const bcrypt = require("bcryptjs");
+const uuidApiKey = require("uuid-apikey");
 
 const { app } = require("../../config/app");
 
@@ -23,6 +24,11 @@ const UserSchema = new mongoose.Schema({
 		require: true,
 		minlength: 6
 	},
+	apiKey: {
+		type: String,
+		required: true,
+		unique: true
+	},
 	tokens: [
 		{
 			access: {
@@ -42,6 +48,12 @@ UserSchema.methods.toJSON = function() {
 	const userObject = user.toObject();
 
 	return _.pick(userObject, ["_id", "email"]);
+};
+
+UserSchema.methods.generateApiKey = function() {
+	const user = this;
+	user.apiKey = uuidApiKey.create().apiKey;
+	return user;
 };
 
 UserSchema.methods.generateAuthToken = function() {

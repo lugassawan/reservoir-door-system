@@ -1,5 +1,6 @@
 const { ObjectID } = require("mongodb");
 const jwt = require("jsonwebtoken");
+const uuidApiKey = require("uuid-apikey");
 
 const { app } = require("../../config/app");
 const { User } = require("../../api/models/User");
@@ -12,6 +13,7 @@ const users = [
 		_id: userOneId,
 		email: "lugas@example.com",
 		password: "userOnePass",
+		apiKey: uuidApiKey.create().apiKey,
 		tokens: [
 			{
 				access: "auth",
@@ -25,6 +27,7 @@ const users = [
 		_id: userTwoId,
 		email: "test@example.com",
 		password: "userTwoPass",
+		apiKey: uuidApiKey.create().apiKey,
 		tokens: [
 			{
 				access: "auth",
