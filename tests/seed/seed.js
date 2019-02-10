@@ -1,8 +1,10 @@
 const { ObjectID } = require("mongodb");
 const jwt = require("jsonwebtoken");
 const uuidApiKey = require("uuid-apikey");
+const randomstring = require("randomstring");
 
 const { app } = require("../../config/app");
+const { Project } = require("../../api/models/Project");
 const { User } = require("../../api/models/User");
 
 const userOneId = new ObjectID();
@@ -39,6 +41,30 @@ const users = [
 	}
 ];
 
+const projects = [
+	{
+		_id: new ObjectID(),
+		projectCode: randomstring.generate(10),
+		projectName: "First Project",
+		_creator: userOneId
+	},
+	{
+		_id: new ObjectID(),
+		projectCode: randomstring.generate(10),
+		projectName: "Second Project",
+		_creator: userTwoId
+	}
+];
+
+const populateProjects = done => {
+	Project.deleteMany({})
+		.then(() => {
+			return Project.insertMany(projects);
+		})
+		.then(() => done())
+		.catch(e => done(e));
+};
+
 const populateUsers = done => {
 	User.deleteMany({})
 		.then(() => {
@@ -51,4 +77,4 @@ const populateUsers = done => {
 		.catch(e => done(e));
 };
 
-module.exports = { users, populateUsers };
+module.exports = { projects, populateProjects, users, populateUsers };

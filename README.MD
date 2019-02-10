@@ -22,13 +22,24 @@ curl -X {HTTP Method} -H "Content-Type: application/json" -F "key1=value" -F key
 
 ## API LIST
 
-```
 users
+
+```
 - GET /users                = Show greeting message
 - POST /users               = Register user
 - GET /users/me             = Get user data
 - POST /users/login         = Login user to system
 - DELETE /users/me/token    = Logout user from system
+```
+
+projects
+
+```
+- GET /projects             = Show all projects by user
+- POST /projects            = Create a new project
+- GET /projects/:id         = Show a project doc
+- PATCH /projects/:id       = Update a project name
+- DELETE /projects/:id      = Delet a project
 ```
 
 ## Test

@@ -27,6 +27,7 @@
 		"mongoose": "^5.4.10",
 		"morgan": "^1.9.1",
 		"pino": "^5.11.1",
+		"randomstring": "^1.1.5",
 		"uuid-apikey": "^1.4.2",
 		"validator": "^10.11.0"
 	},
