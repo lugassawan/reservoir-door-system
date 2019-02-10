@@ -22,7 +22,7 @@ curl -X {HTTP Method} -H "Content-Type: application/json" -F "key1=value" -F key
 
 ## API LIST
 
-users
+Users
 
 ```
 - GET /users                = Show greeting message
@@ -32,7 +32,7 @@ users
 - DELETE /users/me/token    = Logout user from system
 ```
 
-projects
+Projects
 
 ```
 - GET /projects             = Show all projects by user
@@ -40,6 +40,16 @@ projects
 - GET /projects/:id         = Show a project doc
 - PATCH /projects/:id       = Update a project name
 - DELETE /projects/:id      = Delet a project
+```
+
+Devices
+
+```
+- GET /projects/:projectId/devices             = Show all devices by project
+- POST /projects/:projectId/devices            = Create a new device
+- GET /projects/:projectId/devices/:id         = Show a device doc
+- PATCH /projects/:projectId/devices/:id       = Update a device name
+- DELETE /projects/:projectId/devices/:id      = Delet a device
 ```
 
 ## Test

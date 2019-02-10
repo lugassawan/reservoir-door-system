@@ -8,6 +8,7 @@ const { app } = require("./config/app");
 
 const userRoutes = require("./api/routes/user");
 const projectRoutes = require("./api/routes/project");
+const deviceRoutes = require("./api/routes/device");
 
 const server = express();
 const PORT = process.env.PORT || 5000;
@@ -21,6 +22,7 @@ server.use(bodyParser.json());
 
 server.use("/users", userRoutes);
 server.use("/projects", projectRoutes);
+server.use("/projects", deviceRoutes);
 
 server.listen(PORT, err => {
 	if (!err) {

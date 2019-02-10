@@ -3,9 +3,12 @@ const request = require("supertest");
 const { ObjectID } = require("mongodb");
 
 const { server } = require("../server");
-const { Project } = require("../api/models/Project");
 const { User } = require("../api/models/User");
+const { Project } = require("../api/models/Project");
+const { Device } = require("../api/models/Device");
 const {
+	devices,
+	populateDevices,
 	projects,
 	populateProjects,
 	users,
@@ -14,6 +17,255 @@ const {
 
 beforeEach(populateUsers);
 beforeEach(populateProjects);
+beforeEach(populateDevices);
+
+describe("POST /projects/:projectId/devices", () => {
+	it("should create a new device", done => {
+		const name = "Device test name";
+
+		request(server)
+			.post(`/projects/${projects[0]._id.toHexString()}/devices`)
+			.set("x-auth", users[0].tokens[0].token)
+			.send({ name })
+			.expect(200)
+			.expect(res => {
+				expect(res.body.deviceName).toBe(name);
+			})
+			.end((err, res) => {
+				if (err) {
+					return done(err);
+				}
+
+				Device.find({ deviceName: name })
+					.then(devices => {
+						expect(devices.length).toBe(1);
+						expect(devices[0].deviceName).toBe(name);
+						done();
+					})
+					.catch(e => done(e));
+			});
+	});
+
+	it("should not create device with invalid body data", done => {
+		request(server)
+			.post(`/projects/${projects[0]._id.toHexString()}/devices`)
+			.set("x-auth", users[0].tokens[0].token)
+			.send({})
+			.expect(400)
+			.end((err, res) => {
+				if (err) {
+					return done(err);
+				}
+
+				Device.find()
+					.then(devices => {
+						expect(devices.length).toBe(2);
+						done();
+					})
+					.catch(e => done(e));
+			});
+	});
+});
+
+describe("GET /projects/:projectId/devices", () => {
+	it("should get all devices", done => {
+		request(server)
+			.get(`/projects/${projects[0]._id.toHexString()}/devices`)
+			.set("x-auth", users[0].tokens[0].token)
+			.expect(200)
+			.expect(res => {
+				expect(res.body.devices.length).toBe(1);
+			})
+			.end(done);
+	});
+});
+
+describe("GET /projects/:projectId/devices/:id", () => {
+	it("should return device doc", done => {
+		request(server)
+			.get(
+				`/projects/${projects[0]._id.toHexString()}/devices/${devices[0]._id.toHexString()}`
+			)
+			.set("x-auth", users[0].tokens[0].token)
+			.expect(200)
+			.expect(res => {
+				expect(res.body.device.deviceCode).toBe(devices[0].deviceCode);
+				expect(res.body.device.deviceName).toBe(devices[0].deviceName);
+			})
+			.end(done);
+	});
+
+	it("should not return device doc created by other user", done => {
+		request(server)
+			.get(
+				`/projects/${projects[1]._id.toHexString()}/devices/${devices[1]._id.toHexString()}`
+			)
+			.set("x-auth", users[0].tokens[0].token)
+			.expect(404)
+			.end(done);
+	});
+
+	it("should not return device doc from other project", done => {
+		request(server)
+			.get(
+				`/projects/${projects[0]._id.toHexString()}/devices/${devices[1]._id.toHexString()}`
+			)
+			.set("x-auth", users[0].tokens[0].token)
+			.expect(404)
+			.end(done);
+	});
+
+	it("should return 404 if device not found", done => {
+		const hexId = new ObjectID().toHexString();
+
+		request(server)
+			.get(`/projects/${projects[0]._id.toHexString()}/devices/${hexId}`)
+			.set("x-auth", users[0].tokens[0].token)
+			.expect(404)
+			.end(done);
+	});
+
+	it("should return 404 for non-object ids", done => {
+		request(server)
+			.get(`/projects/${projects[0]._id.toHexString()}/devices/123abc`)
+			.set("x-auth", users[0].tokens[0].token)
+			.expect(404)
+			.end(done);
+	});
+});
+
+describe("DELETE /projects/:projectId/devices/:id", () => {
+	it("should remove a device", done => {
+		const hexId = devices[1]._id.toHexString();
+
+		request(server)
+			.delete(`/projects/${projects[1]._id.toHexString()}/devices/${hexId}`)
+			.set("x-auth", users[1].tokens[0].token)
+			.expect(200)
+			.expect(res => {
+				expect(res.body.device._id).toBe(hexId);
+			})
+			.end((err, res) => {
+				if (err) {
+					return done(err);
+				}
+
+				Device.findById(hexId)
+					.then(device => {
+						expect(device).toBeFalsy();
+						done();
+					})
+					.catch(e => done(e));
+			});
+	});
+
+	it("should not remove a device", done => {
+		const hexId = devices[0]._id.toHexString();
+
+		request(server)
+			.delete(`/projects/${projects[0]._id.toHexString()}/devices/${hexId}`)
+			.set("x-auth", users[1].tokens[0].token)
+			.expect(404)
+			.end((err, res) => {
+				if (err) {
+					return done(err);
+				}
+
+				Device.findById(hexId)
+					.then(device => {
+						expect(device).toBeTruthy();
+						done();
+					})
+					.catch(e => done(e));
+			});
+	});
+
+	it("should not remove a device if it is different project", done => {
+		const hexId = devices[0]._id.toHexString();
+
+		request(server)
+			.delete(`/projects/${projects[1]._id.toHexString()}/devices/${hexId}`)
+			.set("x-auth", users[0].tokens[0].token)
+			.expect(404)
+			.end((err, res) => {
+				if (err) {
+					return done(err);
+				}
+
+				Device.findById(hexId)
+					.then(device => {
+						expect(device).toBeTruthy();
+						done();
+					})
+					.catch(e => done(e));
+			});
+	});
+
+	it("should return 404 if device not found", done => {
+		const hexId = new ObjectID().toHexString();
+
+		request(server)
+			.delete(`/projects/${projects[1]._id.toHexString()}/devices/${hexId}`)
+			.set("x-auth", users[1].tokens[0].token)
+			.expect(404)
+			.end(done);
+	});
+
+	it("should return 404 if object id is invalid", done => {
+		request(server)
+			.delete(`/projects/${projects[1]._id.toHexString()}/devices/123abc`)
+			.set("x-auth", users[1].tokens[0].token)
+			.expect(404)
+			.end(done);
+	});
+});
+
+describe("PACTH /projects/:projectId/devices/:id", () => {
+	it("should update the device", done => {
+		const hexId = devices[0]._id.toHexString();
+		const name = "This should be the new device name";
+
+		request(server)
+			.patch(`/projects/${projects[0]._id.toHexString()}/devices/${hexId}`)
+			.set("x-auth", users[0].tokens[0].token)
+			.send({
+				name
+			})
+			.expect(200)
+			.expect(res => {
+				expect(res.body.device.deviceName).toBe(name);
+			})
+			.end(done);
+	});
+
+	it("should not update the device created by other user ", done => {
+		const hexId = devices[0]._id.toHexString();
+		const name = "This should be the new device name";
+
+		request(server)
+			.patch(`/projects/${projects[0]._id.toHexString()}/devices/${hexId}`)
+			.set("x-auth", users[1].tokens[0].token)
+			.send({
+				name
+			})
+			.expect(404)
+			.end(done);
+	});
+
+	it("should not update the device created by other project ", done => {
+		const hexId = devices[0]._id.toHexString();
+		const name = "This should be the new device name";
+
+		request(server)
+			.patch(`/projects/${projects[1]._id.toHexString()}/devices/${hexId}`)
+			.set("x-auth", users[0].tokens[0].token)
+			.send({
+				name
+			})
+			.expect(404)
+			.end(done);
+	});
+});
 
 describe("POST /projects", () => {
 	it("should create a new project", done => {
@@ -77,7 +329,7 @@ describe("GET /projects", () => {
 });
 
 describe("GET /projects/:id", () => {
-	it("should return proect doc", done => {
+	it("should return project doc", done => {
 		request(server)
 			.get(`/projects/${projects[0]._id.toHexString()}`)
 			.set("x-auth", users[0].tokens[0].token)
@@ -207,7 +459,7 @@ describe("PACTH /projects/:id", () => {
 			.patch(`/projects/${hexId}`)
 			.set("x-auth", users[1].tokens[0].token)
 			.send({
-				projectName: name
+				name
 			})
 			.expect(404)
 			.end(done);

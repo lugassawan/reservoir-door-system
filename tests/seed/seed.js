@@ -4,11 +4,16 @@ const uuidApiKey = require("uuid-apikey");
 const randomstring = require("randomstring");
 
 const { app } = require("../../config/app");
-const { Project } = require("../../api/models/Project");
 const { User } = require("../../api/models/User");
+const { Project } = require("../../api/models/Project");
+const { Device } = require("../../api/models/Device");
 
 const userOneId = new ObjectID();
 const userTwoId = new ObjectID();
+const projectOneId = new ObjectID();
+const projectTwoId = new ObjectID();
+const deviceOneId = new ObjectID();
+const deviceTwoId = new ObjectID();
 
 const users = [
 	{
@@ -43,27 +48,35 @@ const users = [
 
 const projects = [
 	{
-		_id: new ObjectID(),
+		_id: projectOneId,
 		projectCode: randomstring.generate(10),
 		projectName: "First Project",
 		_creator: userOneId
 	},
 	{
-		_id: new ObjectID(),
+		_id: projectTwoId,
 		projectCode: randomstring.generate(10),
 		projectName: "Second Project",
 		_creator: userTwoId
 	}
 ];
 
-const populateProjects = done => {
-	Project.deleteMany({})
-		.then(() => {
-			return Project.insertMany(projects);
-		})
-		.then(() => done())
-		.catch(e => done(e));
-};
+const devices = [
+	{
+		_id: deviceOneId,
+		deviceCode: randomstring.generate(10),
+		deviceName: "First Device",
+		_project: projectOneId,
+		_creator: userOneId
+	},
+	{
+		_id: deviceTwoId,
+		deviceCode: randomstring.generate(10),
+		deviceName: "Second Device",
+		_project: projectTwoId,
+		_creator: userTwoId
+	}
+];
 
 const populateUsers = done => {
 	User.deleteMany({})
@@ -77,4 +90,29 @@ const populateUsers = done => {
 		.catch(e => done(e));
 };
 
-module.exports = { projects, populateProjects, users, populateUsers };
+const populateProjects = done => {
+	Project.deleteMany({})
+		.then(() => {
+			return Project.insertMany(projects);
+		})
+		.then(() => done())
+		.catch(e => done(e));
+};
+
+const populateDevices = done => {
+	Device.deleteMany({})
+		.then(() => {
+			return Device.insertMany(devices);
+		})
+		.then(() => done())
+		.catch(e => done(e));
+};
+
+module.exports = {
+	devices,
+	populateDevices,
+	projects,
+	populateProjects,
+	users,
+	populateUsers
+};
