@@ -10,6 +10,7 @@ const userRoutes = require("./api/routes/user");
 const projectRoutes = require("./api/routes/project");
 const deviceRoutes = require("./api/routes/device");
 const dataRoutes = require("./api/routes/data");
+const lineRoutes = require("./api/routes/line");
 
 const server = express();
 const PORT = process.env.PORT || 5000;
@@ -17,6 +18,8 @@ const PORT = process.env.PORT || 5000;
 if (app.env !== "test") {
 	server.use(logger("dev"));
 }
+
+server.use("/line", lineRoutes);
 
 server.use(bodyParser.urlencoded({ extended: true }));
 server.use(bodyParser.json());

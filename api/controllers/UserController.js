@@ -8,7 +8,7 @@ exports.greeting = async (req, res) => {
 
 exports.register = async (req, res) => {
 	try {
-		const body = _.pick(req.body, ["email", "password"]);
+		const body = _.pick(req.body, ["email", "password", "lineId"]);
 		const user = new User(body);
 		await user.generateApiKey();
 		await user.save();

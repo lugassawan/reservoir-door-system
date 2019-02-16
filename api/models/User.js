@@ -29,6 +29,9 @@ const UserSchema = new mongoose.Schema({
 		required: true,
 		unique: true
 	},
+	lineId: {
+		type: String
+	},
 	tokens: [
 		{
 			access: {
@@ -47,7 +50,7 @@ UserSchema.methods.toJSON = function() {
 	const user = this;
 	const userObject = user.toObject();
 
-	return _.pick(userObject, ["_id", "email"]);
+	return _.pick(userObject, ["_id", "email", "apiKey"]);
 };
 
 UserSchema.methods.generateApiKey = function() {
